@@ -1,0 +1,51 @@
+name: 'Mintlify Preview Deploy'
+description: 'Deploys Mintlify previews for pull requests'
+author: 'frain-dev'
+branding:
+  icon: 'upload-cloud'
+  color: 'blue'
+inputs:
+  docs_path:
+    description: 'Path to documentation file'
+    required: true
+  backend_url:
+    description: 'Custom backend server for deployment (optional)'
+    required: false
+    default: 'https://mintlify-previewer.getconvoy.io/deploy'
+  github_token:
+    description: 'GitHub token to comment on the PR'
+    required: true
+outputs:
+  deployment_url:
+    description: 'The URL of the Mintlify preview'
+    value: ${{ steps.deploy.outputs.deployment_url }}
+runs:
+  using: 'composite'
+  steps:
+    - name: Call Mintlify Previewer Backend
+      shell: bash
+      run: |
+        GITHUB_URL="${{ github.event.pull_request.html_url }}"
+        BRANCH="${{ github.head_ref }}"
+        BACKEND_URL="${{ inputs.backend_url }}"
+
+        RESPONSE=$(curl -X POST "$BACKEND_URL" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "github_url": "'"$GITHUB_URL"'",
+            "branch": "'"$BRANCH"'",
+            "docs_path": "${{ inputs.docs_path }}"
+          }')
+        DEPLOYMENT_URL=$(echo $RESPONSE | jq -r '.deployment_url')
+        
+        echo "deployment_url=$DEPLOYMENT_URL" >> $GITHUB_ENV
+
+    - name: Comment PR with Preview URL
+      shell: bash
+      run: |
+        PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+        COMMENT="🚀 Mintlify preview available at: $DEPLOYMENT_URL"
+
+        curl -s -H "Authorization: token ${{ inputs.github_token }}" \
+          -X POST -d "{\"body\": \"$COMMENT\"}" \
+          "https://api.github.com/repos/${{ github.repository }}/issues/$PR_NUMBER/comments"
