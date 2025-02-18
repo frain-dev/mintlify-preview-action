@@ -44,7 +44,7 @@ runs:
       shell: bash
       run: |
         PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
-        COMMENT="🚀 Mintlify preview available at: $DEPLOYMENT_URL"
+        COMMENT="🚀 Mintlify preview available at: ${{ env.deployment_url }}"
 
         curl -s -H "Authorization: token ${{ inputs.github_token }}" \
           -X POST -d "{\"body\": \"$COMMENT\"}" \
