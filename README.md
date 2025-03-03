@@ -26,7 +26,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Deploy Mintlify Preview
-        uses: frain-dev/mintlify-preview-action@v0.1.2
+        uses: frain-dev/mintlify-preview-action@v0.1.3
         with:
           docs_path: "docs/mint.json"  # Path to your documentation file
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -67,7 +67,9 @@ The action provides the following output:
 Here’s an example of the comment posted on the pull request:
 
 ```
-🚀 Mintlify preview available at: https://01JMCNA4MFFE1PHTSHJ46JV8CG.mintlify-previewer.getconvoy.io
+🚀 Mintlify preview available at: https://01jnewdvfews9e74yvxftbp67c.mintlify-previewer.getconvoy.io
+
+Powered by Convoy - send webhooks in minutes not months!
 ```
 
 ## License
